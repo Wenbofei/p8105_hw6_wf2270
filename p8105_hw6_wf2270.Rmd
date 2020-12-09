@@ -111,16 +111,40 @@ baby_df =
     malform = factor(malform), 
     mrace = factor(mrace)
     )
-# check for missing datat
+# check for missing data
 baby_df %>%  summarise(na_count = sum(is.na(.))) #no missing value
 ```
 
 Propose a regression model for birthweight. 
+
+Do step-wise model selection based on AIC.
 ```{r P2model}
 # step-wise model selection based on AIC
 step_model = lm(bwt ~ ., data = baby_df) %>%
   stepAIC(direction = "both", trace = F) %>% 
   broom::tidy()
 
+step_model
 ```
+
+Based on the result, the proposed model is: $bwt = \beta_0 + \beta_1* babysex2 + \beta_2*bhead + \beta_3*blength + \beta_4*delwt + \beta_5*fincome + \beta_6*gaweeks + \beta_7*mheight + \beta_8*mrace2 + \beta_9*mrace3 + \beta_{10}*mrace4  + \beta_{11}*parity + \beta_{12}*ppwt + \beta_{13}*smoken$
+
+Show a plot of model residuals against fitted values
+```{r P2plot}
+#proposed model
+baby_fit = lm(bwt ~ babysex + bhead + blength + delwt + fincome + gaweeks + mheight + mrace + parity + ppwt + smoken, data = baby_df)
+#plot  
+baby_df %>% 
+  add_predictions(baby_fit) %>% 
+  add_residuals(baby_fit) %>% 
+  ggplot(aes(y = resid, x = pred)) + 
+  geom_point(alpha = .2) + 
+  labs(
+    title = "Plot of model residuals vs. fitted values",
+    x = "Fitted Values",
+    y = "Residuals"
+  )
+```
+
+
 
